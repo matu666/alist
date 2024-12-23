@@ -111,14 +111,23 @@ jobs:
     name: Beta Release Desktop
     runs-on: ubuntu-latest
     steps:
-      - uses: peter-evans/create-or-update-comment@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
         with:
-          issue-number: 69
-          body: |
-            /release-beta
-            - triggered by @${{ github.actor }}
-            - commit sha: ${{ github.sha }}
-            - view files: https://github.com/alist-org/alist/tree/${{ github.sha }}
-          reactions: 'rocket'
-          token: ${{ secrets.MY_TOKEN }}
+          repository: alist-org/desktop-release
+          ref: main
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Commit
+        run: |
+          git config --local user.email "bot@nn.ci"
+          git config --local user.name "IlaBot"
+          git commit --allow-empty -m "Trigger build for ${{ github.sha }}"
+
+      - name: Push commit
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.MY_TOKEN }}
+          branch: main
           repository: alist-org/desktop-release
